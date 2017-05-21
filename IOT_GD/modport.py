@@ -132,10 +132,10 @@ def OpenSerialfor_ModPort():
 	try:
 		# Open a Moacon Serial port
 		serialport.open()
-		print "serial port opened"
+		print("serial port opened")
 		return True
 	except Exception as e:
-		print "The serial port named: " + port + " couldn't open, Error: " + str(e)
+		print("The serial port named: " + port + " couldn't open, Error: " + str(e))
 		return False
 		serialport.close()
 
@@ -152,7 +152,7 @@ def checking_CRC_sum(data_str):
 		check_crc = check_crc ^ ord(data_str[n])
 
 	if check_crc == 0xa:
-		if debug: print "CRC checking 0xA"
+		if debug: print("CRC checking 0xA")
 		check_crc = check_crc ^ 0xa
 	return check_crc
 
@@ -246,7 +246,7 @@ def FncCode_3_Read_Input_register( Module_Number, MD_Address, MD_lenght, numChan
 		len_recv = ord(read_data[2])	# This is the lenght arrived in the frame from Module_Number readed
 		calc_crc = _calculateCrcString(read_data[0:3+len_recv])
 		if calc_crc == read_data[3+len_recv:5+len_recv] and chr(Module_Number) == read_data[0] and chr(Function_Code) == read_data[1]:
-			if debug: print "CRC ===== OK == OK == OK ====="
+			if debug: print("CRC ===== OK == OK == OK =====")
 			if len_recv == 8:
 				k = 3
 				RawData = []
@@ -282,7 +282,7 @@ def FncCode_3_Read_Input_register( Module_Number, MD_Address, MD_lenght, numChan
 					k += 4
 				return RawData
 		else:	# If the CRC arrived is corrupted
-			if debug: print "Error data received (CRC corrupted)"
+			if debug: print("Error data received (CRC corrupted)")
 			RawData = []
 			for n in range(0, numChannels):
 				RawData.insert(n, -3)
@@ -368,29 +368,29 @@ def FncCode_1_Read_coil_Input_Status(Module_Number, MD_Address, MD_lenght, debug
 	read_data = serialport.read(20)	# Read the data arrived from moacon Module_Numbers
 	lenght_readData = len(read_data)
 
-	if debug: print "Lenght: " + str(lenght_readData) + " -Received RAW Data: "
+	if debug: print("Lenght: " + str(lenght_readData) + " -Received RAW Data: ")
 	for num in range(0,lenght_readData):
-		if debug: print hex(ord(read_data[num])),
+		if debug: print(hex(ord(read_data[num])), end=' ')
 	if debug:
-		print ""
-		print "Read size: " + str(len(read_data))
+		print("")
+		print("Read size: " + str(len(read_data)))
 
 	# Checking if there is data en read_data
 	if lenght_readData > 5:
 		calc_crc = _calculateCrcString(read_data[0:lenght_readData-2])
 		if calc_crc == read_data[lenght_readData-2:lenght_readData] and chr(Module_Number) == read_data[0] and chr(Function_Code) == read_data[1]:
-			if debug: print "CRC ===== OK == OK == OK ====="
+			if debug: print("CRC ===== OK == OK == OK =====")
 			rev_byte = reverse_bits(read_data[3], 8)
 			RawData = [int(i) for i in "{0:08b}".format(rev_byte)]
-			if debug: print RawData
+			if debug: print(RawData)
 			return RawData
 		else:	# If the CRC arrived is corrupted
 			RawData = [-3 for i in "{0:08b}".format(ord(" "))]
-			if debug: print RawData
+			if debug: print(RawData)
 			return RawData
 	else:	# if there is no data in read_data fill the array with -4 to show an error.
 		RawData = [-4 for i in "{0:08b}".format(ord(" "))]
-		if debug: print RawData
+		if debug: print(RawData)
 		return RawData
 
 	""" 
@@ -454,12 +454,12 @@ def FncCode_5_Force_Single_Coil_Status(Module_Number, MD_Address, value, debug=F
 	read_data = serialport.read(20)	# Read the data arrived from moacon Module_Numbers
 	lenght_readData = len(read_data)
 
-	if debug: print "Lenght: " + str(lenght_readData) + " -Received RAW Data: "
+	if debug: print("Lenght: " + str(lenght_readData) + " -Received RAW Data: ")
 	for num in range(0,lenght_readData):
-		if debug: print hex(ord(read_data[num])),
+		if debug: print(hex(ord(read_data[num])), end=' ')
 	if debug:
-		print ""
-		print "Read size: " + str(len(read_data))
+		print("")
+		print("Read size: " + str(len(read_data)))
 		# for data in read_data:
 		# 	print hex(data)
 
@@ -467,7 +467,7 @@ def FncCode_5_Force_Single_Coil_Status(Module_Number, MD_Address, value, debug=F
 	if lenght_readData > 7:
 		calc_crc = _calculateCrcString(read_data[0:lenght_readData-2])
 		if calc_crc == read_data[lenght_readData-2:lenght_readData] and chr(Module_Number) == read_data[0] and chr(Function_Code) == read_data[1]:
-			if debug: print "CRC ===== OK == OK == OK ====="
+			if debug: print("CRC ===== OK == OK == OK =====")
 			calc_value = (ord(read_data[4]) * 256) + ord(read_data[5])
 			if  calc_value == value:
 				# if the values are equal it means that the value was assigned satisfactory
@@ -532,20 +532,20 @@ def FncCode_15_Force_Multiple_Coil_Status(Module_Number, MD_Address, MD_Data, de
 	data = struct.pack('>BBHHB',Module_Number, Function_Code, MD_Address, MD_lenght, Byte_Count) +  struct.pack('<H', MD_Data)
 	crc = _calculateCrcString(data)
 	tx_data = data + crc
-	if debug: print "Transmit Data: ",
-	if debug: print " ".join("{:02x}".format(ord(c)) for c in tx_data)
+	if debug: print("Transmit Data: ", end=' ')
+	if debug: print(" ".join("{:02x}".format(ord(c)) for c in tx_data))
 	serialport.write(tx_data)		# Send the request channels data to modport Module_Number
 
 	read_data = ""
 	read_data = serialport.read(20)	# Read the data arrived from moacon Module_Numbers
 	lenght_readData = len(read_data)
 
-	if debug: print "Lenght: " + str(lenght_readData) + " -Received RAW Data: "
+	if debug: print("Lenght: " + str(lenght_readData) + " -Received RAW Data: ")
 	for num in range(0,lenght_readData):
-		if debug: print hex(ord(read_data[num])),
+		if debug: print(hex(ord(read_data[num])), end=' ')
 	if debug:
-		print ""
-		print "Read size: " + str(len(read_data))
+		print("")
+		print("Read size: " + str(len(read_data)))
 		# for data in read_data:
 		# 	print hex(data)
 
@@ -553,7 +553,7 @@ def FncCode_15_Force_Multiple_Coil_Status(Module_Number, MD_Address, MD_Data, de
 	if lenght_readData > 7:
 		calc_crc = _calculateCrcString(read_data[0:lenght_readData-2])
 		if calc_crc == read_data[lenght_readData-2:lenght_readData] and chr(Module_Number) == read_data[0] and chr(Function_Code) == read_data[1]:
-			if debug: print "CRC ===== OK == OK == OK ====="
+			if debug: print("CRC ===== OK == OK == OK =====")
 			if  MD_lenght == ord(read_data[lenght_readData-3]):
 				# if the values are equal it means that the value was assigned satisfactory and return a 1 to show it
 				rev_byte = reverse_bits(chr(MD_Data), 8)
@@ -604,7 +604,7 @@ def MD_request_data_pack (Module_Number, Function_Code, MD_Address, MD_lenght, d
 	tx_data = data + crc
 
 	# if debug: print "0x" + " 0x".join("{:02x}".format(ord(c)) for c in tx_data)
-	if debug: print "Transmit Data: ",
-	if debug: print " ".join("{:02x}".format(ord(c)) for c in tx_data)
+	if debug: print("Transmit Data: ", end=' ')
+	if debug: print(" ".join("{:02x}".format(ord(c)) for c in tx_data))
 
 	serialport.write(tx_data)		# Send the request channels data to modport Module_Number

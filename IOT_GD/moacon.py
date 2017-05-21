@@ -49,10 +49,10 @@ def OpenSerialfor_Moacon():
 	try:
 		# Open a Moacon Serial port
 		ser_moacon.open()
-		print "serial port opened"
+		print("serial port opened")
 		return True
 	except Exception as e:
-		print "The serial port named: " + port + " couldn't open, Error: " + str(e)
+		print("The serial port named: " + port + " couldn't open, Error: " + str(e))
 		return False
 		ser_moacon.close()
 
@@ -74,10 +74,10 @@ def Fix_RSModule_Data(read_data, debug=False):
 	lenght_readData = len(read_data)
 
 	if debug:
-		print "Lenght: " + str(lenght_readData) + " -RAW Data: "
+		print("Lenght: " + str(lenght_readData) + " -RAW Data: ")
 		for num in range(0,lenght_readData):
-			print hex(ord(read_data[num])),
-		print ""
+			print(hex(ord(read_data[num])), end=' ')
+		print("")
 
 	_MBrxdata = ""
 	k = 0
@@ -107,12 +107,12 @@ def Fix_RSModule_Data(read_data, debug=False):
 
 	# Se imprimen los datos recibidos procesados con datos reales.
 	if debug:
-		print "=============================================="
+		print("==============================================")
 		real_lenght = len(_MBrxdata)
-		print "Lenght: " + str(lenght_readData) + " -Real Data: "
+		print("Lenght: " + str(lenght_readData) + " -Real Data: ")
 		for num in range(0,real_lenght):
-			print hex(ord(_MBrxdata[num])),
-		print ""
+			print(hex(ord(_MBrxdata[num])), end=' ')
+		print("")
 
 
 	return _MBrxdata
@@ -167,7 +167,7 @@ def RS_Read (ReadModule, RS_Code, numChannels, debug):
 	_Txb = [chr(STX), chr(RS_Code), chr(module_number), chr(ETX)]		# Defining the basic array
 	crc = chr( RS_Code ^ (module_number) )							# Calculating the CRC
 
-	if debug: print "The Real CRC is: " + hex(ord(crc))
+	if debug: print("The Real CRC is: " + hex(ord(crc)))
 
 	# Checking the CRC for hexadecimals 02, 03 and 10 in the frames.
 	if crc == chr(0x02):	# the 02 is replace with 0x10 and 0x22
@@ -191,7 +191,7 @@ def RS_Read (ReadModule, RS_Code, numChannels, debug):
 	while count_attemps_read < max_attemps_read:
 
 		ser_moacon.flushInput()
-		if debug: print "Transmit: " + str(_Txb)
+		if debug: print("Transmit: " + str(_Txb))
 		ser_moacon.write(tx_data)		# Send the request channels data to moacon module
 		count_attemps_read += 1
 
@@ -219,38 +219,38 @@ def RS_Read (ReadModule, RS_Code, numChannels, debug):
 
 			check_crc = checking_CRC_sum(read_data)				# Checking if the CRC of data is OK
 
-			if debug: print "Check CRC: " + str(hex(check_crc))
+			if debug: print("Check CRC: " + str(hex(check_crc)))
 
 			flag_pasted_frames = False		# Flag of joined frames. flag=True: 
 			# poner un if len(read_data) > 5:
 			if ord(read_data[1]) == RS_Code and check_crc == 0 and ord(read_data[2]) == module_number:
 				# Extraer, procesar y retornar arreglo
-				if debug: print "No spliting, CRC ===== OK == OK == OK ====="
+				if debug: print("No spliting, CRC ===== OK == OK == OK =====")
 				count_attemps_read = 3
 				pass
 			else:
 				# read_data = read_data[0:read_data.index(chr(0x03))+1]
-				if debug: print "Looking two frames together"
+				if debug: print("Looking two frames together")
 				try:
 					read_data.index(chr(0x03)+chr(0x02))	# Verify if there are two joined frames searching 0x03 and 0x02 in hex
 				except Exception as e:
 					# Si detecta que no hay tramas unidas
 					# If detects that arent joined frame 
-					if debug: print "No frames together"
+					if debug: print("No frames together")
 					flag_pasted_frames = True		# Flag that that show at the end if in the data received are two joined frames
 					pass
 				else:	# Si hay 2 tramas unidas, Se separan en dos variables para analizar cual es la verdadera con el CRC
-					if debug: print "frames together found"
+					if debug: print("frames together found")
 					read_data1 = read_data[0 : read_data.index(chr(0x03)+chr(0x02)) + 1]
 					read_data2 = read_data[read_data.index(chr(0x03)+chr(0x02)) + 1 : lenght_readData + 1]
 					# Calcular CRC de la parte 1 y 2
 					check_crc1 = checking_CRC_sum(read_data1)
 					check_crc2 = checking_CRC_sum(read_data2)
 					if debug:
-						print "Real size data1: " + str(read_data1.index(chr(0x03))+1)
-						print "Check CRC1: " + str(hex(check_crc1))
-						print "Real size data2: " + str(read_data2.index(chr(0x03))+1)
-						print "Check CRC2: " + str(hex(check_crc2))
+						print("Real size data1: " + str(read_data1.index(chr(0x03))+1))
+						print("Check CRC1: " + str(hex(check_crc1)))
+						print("Real size data2: " + str(read_data2.index(chr(0x03))+1))
+						print("Check CRC2: " + str(hex(check_crc2)))
 					# Revisar si los checksum son iguales a 0 y el código coincide
 					if ord(read_data1[1]) == RS_Code and check_crc1 == 0 and ord(read_data[2]) == module_number:
 						# Extraer, procesar y retornar arreglo de la parte 1
@@ -271,14 +271,14 @@ def RS_Read (ReadModule, RS_Code, numChannels, debug):
 			# 	read_data = read_data[read_data.index(chr(0x03)+chr(0x02))+1:lenght_readData+1]
 			
 			if not flag_pasted_frames:
-				if debug: print "Real size: " + str(read_data.index(chr(0x03))+1)
+				if debug: print("Real size: " + str(read_data.index(chr(0x03))+1))
 				RawData = []
 				if len(read_data) > 6:
 					# RS_ADIN4 verify the check sum CRC before the proccess the data
 					# if RS_Code == RS_ADIN4_Code: read_data = Fix_RSModule_Data(read_data)	# Function that fix all modbus data to real data***************
 					k = 3
 					data = 0
-					if debug: print "Array size: " + str(len(read_data))
+					if debug: print("Array size: " + str(len(read_data)))
 					"""Cicle to extract the real ADC data to proccess in the specific application"""
 					for n in range(0, numChannels):
 						data = ( ord(read_data[k]) * 256 ) + ord(read_data[k+1])
